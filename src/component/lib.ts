@@ -179,6 +179,7 @@ export const syncMetadata = action({
   args: {
     key: v.string(),
     onComplete: v.optional(v.string()),
+    authorId: v.optional(v.string()),
     ...r2ConfigValidator.fields,
   },
   returns: v.null(),
@@ -201,6 +202,7 @@ export const syncMetadata = action({
       sha256: response.ChecksumSHA256,
       bucket: r2Config.bucket,
       link,
+      authorId: args.authorId,
     });
     const onComplete = args.onComplete as R2Callbacks["onSyncMetadata"];
     if (onComplete) {
