@@ -13,7 +13,7 @@ export default defineSchema({
     link: v.string(),
   })
     .index("bucket", ["bucket"])
-    .index("bucket_owner", ["bucket", "authorId"])
-    .index("bucket_owner_key", ["bucket", "authorId", "key"])
+    .index("bucket_author", ["bucket", "authorId"])
+    .index("bucket_author_key", ["bucket", "authorId", "key"])
     .index("bucket_key", ["bucket", "key"]),
 });

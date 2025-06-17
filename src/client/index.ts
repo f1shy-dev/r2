@@ -265,9 +265,15 @@ export class R2 {
    * @param limit (optional) - The maximum number of documents to return.
    * @returns A promise that resolves to an array of metadata documents.
    */
-  async listMetadata(ctx: RunQueryCtx, limit?: number, cursor?: string | null) {
+  async listMetadata(
+    ctx: RunQueryCtx,
+    authorId?: string,
+    limit?: number,
+    cursor?: string | null
+  ) {
     return ctx.runQuery(this.component.lib.listMetadata, {
       ...this.config,
+      authorId: authorId,
       limit: limit,
       cursor: cursor ?? undefined,
     });
@@ -447,6 +453,7 @@ export class R2 {
           }
           return this.listMetadata(
             ctx,
+            undefined,
             args.paginationOpts.numItems,
             args.paginationOpts.cursor
           );

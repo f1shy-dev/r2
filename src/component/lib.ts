@@ -114,7 +114,7 @@ export const listMetadata = query({
     const base = paginator(ctx.db, schema).query("metadata");
     if (authorId) {
       results = await base
-        .withIndex("bucket_owner_key", (q) =>
+        .withIndex("bucket_author_key", (q) =>
           q.eq("bucket", r2Config.bucket).eq("authorId", authorId)
         )
         .paginate({
