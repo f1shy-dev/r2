@@ -1,5 +1,5 @@
 import { action, mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { Infer, v } from "convex/values";
 import schema from "./schema";
 import {
   DeleteObjectCommand,
@@ -20,6 +20,8 @@ import { asyncMap } from "convex-helpers";
 import { paginator } from "convex-helpers/server/pagination";
 import { ActionRetrier } from "@convex-dev/action-retrier";
 import { R2Callbacks } from "../client";
+import { PaginationResult } from "convex/server";
+import { Id } from "./_generated/dataModel";
 
 const DEFAULT_LIST_LIMIT = 100;
 const retrier = new ActionRetrier(components.actionRetrier);
@@ -89,6 +91,7 @@ export const listMetadata = query({
   args: {
     limit: v.optional(v.number()),
     cursor: v.optional(v.string()),
+    authorId: v.optional(v.string()),
     ...r2ConfigValidator.fields,
   },
   returns: paginationReturnValidator(
@@ -99,15 +102,33 @@ export const listMetadata = query({
     })
   ),
   handler: async (ctx, args) => {
-    const { limit, cursor, ...r2Config } = args;
+    const { limit, cursor, authorId, ...r2Config } = args;
     const r2 = createR2Client(r2Config);
-    const results = await paginator(ctx.db, schema)
-      .query("metadata")
-      .withIndex("bucket", (q) => q.eq("bucket", r2Config.bucket))
-      .paginate({
-        numItems: limit ?? DEFAULT_LIST_LIMIT,
-        cursor: cursor ?? null,
-      });
+    let results: PaginationResult<
+      Infer<typeof schema.tables.metadata.validator> & {
+        _id: Id<"metadata">;
+        _creationTime: number;
+      }
+    >;
+
+    const base = paginator(ctx.db, schema).query("metadata");
+    if (authorId) {
+      results = await base
+        .withIndex("bucket_owner_key", (q) =>
+          q.eq("bucket", r2Config.bucket).eq("authorId", authorId)
+        )
+        .paginate({
+          numItems: limit ?? DEFAULT_LIST_LIMIT,
+          cursor: cursor ?? null,
+        });
+    } else {
+      results = await base
+        .withIndex("bucket", (q) => q.eq("bucket", r2Config.bucket))
+        .paginate({
+          numItems: limit ?? DEFAULT_LIST_LIMIT,
+          cursor: cursor ?? null,
+        });
+    }
     return {
       ...results,
       page: await asyncMap(results.page, async (doc) => ({
