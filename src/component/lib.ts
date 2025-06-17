@@ -170,6 +170,7 @@ export const upsertMetadata = mutation({
       bucket: args.bucket,
       lastModified: args.lastModified,
       link: args.link,
+      authorId: args.authorId,
     });
     return { isNew: true };
   },
