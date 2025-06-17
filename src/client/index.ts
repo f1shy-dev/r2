@@ -40,6 +40,7 @@ const parseConfig = (config: Infer<typeof r2ConfigValidator>) => {
     endpoint: "R2_ENDPOINT",
     accessKeyId: "R2_ACCESS_KEY_ID",
     secretAccessKey: "R2_SECRET_ACCESS_KEY",
+    forcePathStyle: "R2_FORCE_PATH_STYLE",
   };
   const missingEnvVars = Object.keys(configVars).filter(
     (key) => !config[key as keyof typeof config]
@@ -128,6 +129,7 @@ export class R2 {
       R2_ENDPOINT?: string;
       R2_ACCESS_KEY_ID?: string;
       R2_SECRET_ACCESS_KEY?: string;
+      R2_FORCE_PATH_STYLE?: boolean;
       defaultBatchSize?: number;
     } = {}
   ) {
@@ -137,6 +139,11 @@ export class R2 {
       accessKeyId: options?.R2_ACCESS_KEY_ID ?? process.env.R2_ACCESS_KEY_ID!,
       secretAccessKey:
         options?.R2_SECRET_ACCESS_KEY ?? process.env.R2_SECRET_ACCESS_KEY!,
+      forcePathStyle:
+        (options?.R2_FORCE_PATH_STYLE === undefined
+          ? undefined
+          : options?.R2_FORCE_PATH_STYLE) ??
+            process.env.R2_FORCE_PATH_STYLE! === "true",
     };
     this.r2 = createR2Client(parseConfig(this.config));
   }

@@ -7,6 +7,7 @@ export const r2ConfigValidator = v.object({
   endpoint: v.string(),
   accessKeyId: v.string(),
   secretAccessKey: v.string(),
+  forcePathStyle: v.optional(v.boolean()),
 });
 
 export const createR2Client = (args: Infer<typeof r2ConfigValidator>) => {
@@ -17,6 +18,7 @@ export const createR2Client = (args: Infer<typeof r2ConfigValidator>) => {
       accessKeyId: args.accessKeyId,
       secretAccessKey: args.secretAccessKey,
     },
+    forcePathStyle: args.forcePathStyle,
   });
 };
 
